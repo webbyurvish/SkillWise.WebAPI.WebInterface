@@ -4,9 +4,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles/Login.css";
-import { CometChat } from "@cometchat-pro/chat";
 
-import { extractUsername } from "../../services/MentorServices";
 import { loginUser, signupUser } from "../../redux/slices/authSlice";
 import Loading from "../Layout/Loading/Loading";
 
@@ -17,14 +15,15 @@ export default function Login() {
   const dispatch = useDispatch();
   const location = useLocation();
 
-  const cometchatApiUrl = process.env.REACT_APP_COMETCHAT_URL;
+  const { loading } = useSelector((state) => state.auth);
 
-  const { loading, user } = useSelector((state) => state.auth);
-
-  const [username, setName] = useState("");
-  const [image, setImage] = useState(null);
-  const [email, setEmail] = useState("");
+  const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const [isRightPanelActive, setRightPanelActive] = useState(false);
 
@@ -32,74 +31,6 @@ export default function Login() {
   const toggleRightPanel = () => {
     setRightPanelActive((prevState) => !prevState);
   };
-
-  //////////////////// Check for user is registered in cometchat or not ,
-  // if user not registered then register user and then logging in
-  // and if user is already registered then logging in user ////////////////////
-  useEffect(() => {
-    if (user) {
-      const authKey = process.env.REACT_APP_COMETCHAT_AUTH_KEY;
-
-      // extracting user id for cometchat from email
-      const uid = extractUsername(user.email);
-      const name = user.name;
-      const role = "user";
-
-      // ----- check weather the user is exist in cometchat or not ----- //
-      CometChat.getUser(uid)
-        .then(
-          (existingUser) => {
-            console.log("User already exists:", existingUser);
-            // ----- if User already exists, proceed with login ----- //
-            loginCometChatUser(uid, authKey);
-          },
-          (error) => {
-            console.log("User does not exist:", error);
-            // ----- User does not exist, create a new user ----- //
-            const options = {
-              method: "POST",
-              headers: {
-                accept: "application/json",
-                "content-type": "application/json",
-                apikey: authKey,
-              },
-              body: JSON.stringify({
-                uid,
-                name,
-                role,
-                withAuthToken: false,
-              }),
-            };
-
-            fetch(`${cometchatApiUrl}`, options)
-              .then((response) => response.json())
-              .then((response) => {
-                console.log("User created:", response);
-                // ----- Proceed with login ----- //
-                loginCometChatUser(uid, authKey);
-              })
-              .catch((error) => {
-                console.log("Error creating user:", error);
-              });
-          }
-        )
-        .catch((error) => {
-          console.log("Error checking user:", error);
-        });
-    }
-  }, [user]);
-
-  function loginCometChatUser(uid, authKey) {
-    CometChat.login(uid, authKey)
-      .then((user) => {
-        console.log("Login Successful:", { user });
-        navigate("/"); // ----- Redirect to the desired page after successful login ----- //
-      })
-      .catch((error) => {
-        console.log("Login failed with exception:", { error });
-        // ----- Handle login error ----- //
-      });
-  }
 
   ////////// ---- Message toast ---- //////////
 
@@ -115,8 +46,8 @@ export default function Login() {
     event.preventDefault();
 
     const credentials = {
-      email: email,
-      password: password,
+      userName,
+      password,
     };
     dispatch(loginUser({ credentials, navigate }));
   };
@@ -126,10 +57,13 @@ export default function Login() {
   const handleSignup = (event) => {
     event.preventDefault();
     const userData = {
-      name: username,
-      email: email,
-      password: password,
-      image: image,
+      firstName,
+      lastName,
+      userName,
+      email,
+      password,
+      phoneNumber,
+      roles: ["Manager", "User"],
     };
     dispatch(signupUser({ userData, navigate }));
   };
@@ -154,9 +88,23 @@ export default function Login() {
               <input
                 className="input"
                 type="text"
-                placeholder="Name"
+                placeholder="First Name"
                 required
-                onChange={(event) => setName(event.target.value)}
+                onChange={(event) => setFirstName(event.target.value)}
+              />
+              <input
+                className="input"
+                type="text"
+                placeholder="Last Name"
+                required
+                onChange={(event) => setLastName(event.target.value)}
+              />
+              <input
+                className="input"
+                type="text"
+                placeholder="UserName"
+                required
+                onChange={(event) => setUserName(event.target.value)}
               />
               <input
                 className="input"
@@ -175,12 +123,10 @@ export default function Login() {
               />
               <input
                 className="input"
-                type="file"
-                id="img"
-                name="img"
-                accept="image/*"
+                type="text"
+                placeholder="Phone Number"
                 required
-                onChange={(event) => setImage(event.target.files[0])}
+                onChange={(event) => setPhoneNumber(event.target.value)}
               />
               <button className="button" type="submit">
                 Sign Up
@@ -195,10 +141,10 @@ export default function Login() {
               <h1 className="h1">Sign in</h1>
               <input
                 className="input"
-                type="email"
-                placeholder="Email"
+                type="text"
+                placeholder="UserName"
                 required
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) => setUserName(event.target.value)}
               />
               <input
                 className="input"

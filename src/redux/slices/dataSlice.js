@@ -9,7 +9,7 @@ export const fetchCountries = createAsyncThunk(
   "countries/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/data/countries");
+      const response = await axiosInstance.get("/LookUp/Countries");
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -35,7 +35,7 @@ export const fetchLanguages = createAsyncThunk(
   "languages/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/data/languages");
+      const response = await axiosInstance.get("/LookUp/Languages");
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -48,7 +48,7 @@ export const fetchSkills = createAsyncThunk(
   "skills/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/data/skills");
+      const response = await axiosInstance.get("/LookUp/Skills");
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);

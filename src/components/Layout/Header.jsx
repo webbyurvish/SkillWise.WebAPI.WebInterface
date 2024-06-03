@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { logoutUser } from "../../redux/slices/authSlice";
+import { logout } from "../../redux/slices/authSlice";
 
 //////////////////// ---- Header component ---- ////////////////////
 
@@ -21,7 +21,7 @@ export default function Header() {
   /////////// ---- Logout handler ---- ///////////
 
   const handleLogout = () => {
-    dispatch(logoutUser());
+    dispatch(logout());
     navigate("/");
     setmenu((prevstate) => !prevstate);
   };
